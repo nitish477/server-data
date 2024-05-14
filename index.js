@@ -1,41 +1,45 @@
-import express from "express"
-import dotenv from "dotenv"
-import  mongoose from "mongoose"
+import express from "express";
+import mongoose from "mongoose";
 import path from "path";
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
+import colors from "colors";
+import userRouter from "./src/routes/userRoutes.js";
 
-const app =express()
-app.use(express.json())
-const __dirname = path.resolve();
-const port =5000
+const app = express();
+app.use(express.json());
 
-const connectDB= async()=>{
-    const conn = await mongoose.connect(process.env.URI)
-    if(conn){
-        console.log("Connect To Data base");
+
+const connetDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    if (conn) {
+      console.log("Database Connected Successfully".green.underline);
     }
-}
-
-
-  app.get("/",(req,res)=>{
-    res.status(200).json({
-        success:"true",
-        message:"Welcome after long time"
-    })
-   
-  })
-
-  if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "..", "client", "build")));
-
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
-    });
+  } catch (error) {
+    console.log(error.message.red.bold);
   }
+};
+
+const __dirname = path.resolve();
+
+app.get("/healths", async (req, res) => {
+  res.status(200).send("Api Work");
+});
+
+app.use("/api/user", userRouter);
 
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "..", "client", "build")));
 
-app.listen(port,()=>{
-    console.log("server is running");
-    connectDB()
-})
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+  });
+}
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`.green.bold);
+  connetDB();
+});
