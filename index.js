@@ -5,11 +5,11 @@ import dotenv from "dotenv";
 dotenv.config();
 import colors from "colors";
 import userRouter from "./src/routes/userRoutes.js";
-
+import cors from "cors"
 const app = express();
 app.use(express.json());
 
-
+app.use(cors())
 const connetDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI);
